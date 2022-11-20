@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %} 
+{% block title %}Об авторе проекта{% endblock %}
+{% block content %}
+<div class="row">
+  <aside class="col-12 col-md-3">
+    <ul class="list-group list-group-flush"> 
+    <h1 class="text-center">Я <span style="color:red">автор</span></h1>      
+      <li class="list-group-item text-center"
+          style=>
+        <img src="{% static 'img/author.jpg' %}" width="180" height="180">    
+      </li>
+    </ul>
+  </aside>
+  <article class="col-12 col-md-6">
+    <p style="font-weight:bold">
+      <span style="color:red">
+      Настоящие авторы скрыты в тени кожанного мешка
+      </span>
+    </p>      
+        Мася
+        Тося
+        Мита      
+  </article>
+  <article class="col-12 col-md-3">
+    FFFFFFFFFFFFFFFFFFFFFF
+    FFFFFFFFFFFFFFFFFFFFFF
+    FFFFFFFFFFFFFFFFFFFFFF
+    FFFFFFFFFFFFFFFFFFFFFF
+    FFFFFFFFFFFFFFFFFFFFFF
+  </article>  
+</div>  
+{% endblock %} 

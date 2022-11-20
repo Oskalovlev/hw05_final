@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Yatube{% endblock%}
+{% block content %} 
+    {% include 'posts/includes/switcher.html' with follow=True%}
+    <h1>
+    <span style="color:red">Обновления</span> в подписках
+    </h1>
+    {% load cache %}
+    {% cache 20 sidebar index_page page_obj.number %}
+    {% for post in page_obj %}    
+    {% include 'includes/article.html' %}    
+    {% if not forloop.last %}
+    <hr>
+    {% endif %} 
+    {% endfor %}
+    {% endcache %} 
+    {% include 'posts/includes/paginator.html' %} 
+{% endblock %}

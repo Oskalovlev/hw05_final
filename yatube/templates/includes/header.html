@@ -1,0 +1,45 @@
+{% load static %}    
+<nav class="navbar navbar-light" style="background-color: seashell">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'posts:index' %}">
+      <img src="{% static 'img/logo.png' %}" width="30" height="30" class="d-inline-block align-top" alt="">
+      <span style="color:red">Ya</span>tube
+    </a>
+    <ul class="nav nav-pills">
+      <li class="nav-item"> 
+        <a class="nav-link" style="color:red" href="{% url 'about:author' %}">Об авторе</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" style="color:red" href="{% url 'about:tech' %}">Технологии</a>
+      </li>
+      {% if request.user.is_authenticated %}
+      <li class="nav-item"> 
+        <a class="nav-link" style="color:red"
+        href="{% url 'posts:post_create'%}">Новая запись</a>
+      </li>
+      <li class="nav-item"> 
+        <a class="nav-link link-light" href="{% url 'users:password_change' %}">
+          <span style="color:red">Изменить пароль</span>
+        </a>
+      </li>
+      <li class="nav-item"> 
+        <a class="nav-link link-light" href="{% url 'users:logout' %}">
+          <span style="color:red">Выйти</span>
+        </a>
+      </li>
+      <li>
+        <b>Пользователь: </b>{{ user.username }}
+      </li>
+      {% else %}
+      <li class="nav-item"> 
+        <a class="nav-link link-light" href="{% url 'users:login' %}">
+          <span style="color:red">Войти</span></a>
+      </li>
+      <li class="nav-item"> 
+        <a class="nav-link link-light" href="{% url 'users:signup' %}">
+          <span style="color:red">Регистрация</span></a>
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+</nav> 
