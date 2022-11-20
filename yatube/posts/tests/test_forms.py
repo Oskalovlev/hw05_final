@@ -113,6 +113,11 @@ class TestComments(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
+
     def test_comments_authorized_user(self):
         """Комментировать может только авторизованный пользователь"""
         comment_count_before = Comment.objects.count() + 1
