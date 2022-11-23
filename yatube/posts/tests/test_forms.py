@@ -1,13 +1,14 @@
+import shutil
+import tempfile
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from django.contrib.auth import get_user_model
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.conf import settings
-from django.core.cache import cache
-import tempfile
-import shutil
 
-from posts.models import Post, Group, Comment
+from posts.models import Comment, Group, Post
 
 User = get_user_model()
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
@@ -19,7 +20,6 @@ class PostsURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
         cls.user = User.objects.create_user(username='auth')
         cls.post = Post.objects.create(
             author=cls.user,
@@ -32,15 +32,15 @@ class PostsURLTests(TestCase):
         )
         cache.clear()
 
-    def setUp(self):
-        self.authorized_client = Client()
-        self.authorized_client.force_login(self.user)
-        cache.clear()
-
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
+
+    def setUp(self):
+        self.authorized_client = Client()
+        self.authorized_client.force_login(self.user)
+        cache.clear()
 
     def test_create_post(self):
         """Проверка создания поста"""
@@ -108,15 +108,15 @@ class TestComments(TestCase):
             text='Текст поста',
         )
 
-    def setUp(self):
-        self.client = Client()
-        self.authorized_client = Client()
-        self.authorized_client.force_login(self.user)
-
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
+
+    def setUp(self):
+        self.client = Client()
+        self.authorized_client = Client()
+        self.authorized_client.force_login(self.user)
 
     def test_comments_authorized_user(self):
         """Комментировать может только авторизованный пользователь"""

@@ -1,12 +1,13 @@
-from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
-from django.urls import reverse
-from django.conf import settings
-from django.core.cache import cache
 from math import ceil
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.test import Client, TestCase
+from django.urls import reverse
+
 from ..forms import PostForm
-from ..models import Post, Group, Follow
+from ..models import Follow, Group, Post
 
 User = get_user_model()
 
@@ -41,10 +42,9 @@ class PostsViewsTests(TestCase):
         self.client = Client()
         self.anothe_client = Client()
         self.anothe_client.force_login(self.user_anothe)
-        self.temporary_client = Client()
-        self.temporary_client.force_login(self.user_temporary)
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        # self.authorized_client.force_login(self.user_temporary)
         cache.clear()
 
     def test_profile_and_group_list_page_show_correct_context(self):
@@ -178,7 +178,7 @@ class PostsViewsTests(TestCase):
         post_after = response.context['page_obj']
         self.assertIn(post_before, post_after)
 
-    def test_appears_nofeed_nosubscribed(self):
+    def test_appears_no_feed_unsubscribed(self):
         """
         Новая запись не появляется в ленте тех,
         кто не подписан
@@ -195,7 +195,7 @@ class PostsViewsTests(TestCase):
             reverse('posts:follow_index')
         )
         post_after = response.context['page_obj']
-        response = self.temporary_client.get(
+        response = self.authorized_client.get(
             reverse('posts:follow_index')
         )
         post_after = response.context['page_obj']

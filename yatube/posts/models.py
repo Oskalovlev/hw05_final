@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+# from django.db.models import CheckConstraint, UniqueConstraint, Q, F
 
 from core.models import CreatedModel
 
@@ -18,6 +19,10 @@ class Group(models.Model):
     description = models.TextField(
         verbose_name='Описание',
         help_text='Укажите описание группы',)
+
+    class Meta:
+        verbose_name = 'Группа'
+        verbose_name_plural = 'Группы'
 
     def __str__(self) -> str:
         return self.title
@@ -82,6 +87,10 @@ class Comment(CreatedModel):
         help_text='Введите текст',
     )
 
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -96,3 +105,16 @@ class Follow(models.Model):
         related_name='following',
         verbose_name='Автор',
     )
+
+    class Meta:
+        # constraints = [
+        #     UniqueConstraint(
+        #         fields=['user', 'author'],
+        #         name='unique_follow'
+        #     ),
+        #     CheckConstraint(
+        #         check=Q(author__gt=F('user')),
+        #         name='check_author'),
+        # ]
+        verbose_name = 'Подписчик'
+        verbose_name_plural = 'Подписчики'

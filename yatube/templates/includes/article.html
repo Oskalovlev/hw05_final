@@ -2,11 +2,13 @@
 <article>
   <ul>            
     <li>
-      Автор:     
-      <a href="{% url 'posts:profile' username=post.author %}"
-      style="color:red">      
+      <a 
+      {% if request.resolver_match.view_name != 'posts:profile'%}
+      href="{% url 'posts:profile' username=post.author %}"
+      style="color:red"
+      {% endif %}>
       {{ post.author.get_full_name }}
-      </a>    
+      </a>
     </li>
     <li>
       Дата публикации: {{ post.pub_date|date:"d E Y" }}
@@ -15,7 +17,7 @@
   {% thumbnail post.image "500x500" crop="center" upscale=True as im %}
     <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
   {% endthumbnail %}
-  <p> {{ post.text }} </p>
+  <p> {{ post.text|linebreaksbr }} </p>
   <a style="color:red" href="{% url 'posts:post_detail' post.id %}">Подробная информация</a>
 </article>
 {% if post.group and show_group_link %}  

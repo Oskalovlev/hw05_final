@@ -19,40 +19,42 @@
           {% endif %}          
         </div>
         <div class="card-body">
-          {% for error in form.errors %}
-            <div class="alert alert-danger" role="alert">
-              Введите текст!
-            </div>
+          {% for error in form.errors %} 
+            <div class="alert alert-danger" role="alert"> 
+              {{ error }} 
+            </div> 
           {% endfor %}
             <form method="post" enctype="multipart/form-data"
               action="{% if not is_edit %}
               {% url 'posts:post_create' %}
-              {% endif %}"
-              >
+              {% endif %}">
+
             {% csrf_token %}
+
             {% for field in form %}                            
             <div class="form-group row my-3"
               {% if field.field.required %} 
                 aria-required="true"
               {% else %}
                 aria-required="false"
-              {% endif %}
-            >
+              {% endif %}>
               <label for="{{ field.id_for_label }}">
                 {{ field.label }}
                   {% if field.field.required %}
                     <span class="required text-danger">*</span>
                   {% endif %}
               </label>
-              {{ field|addclass:'form-control' }}               
-              <small id="id_text-help" class="form-text text-muted">
-                {% if is_edit %}
-                  Текст нового поста
-                {% else %}
-                  Текст поста
+              {{ field|addclass:'form-control' }}
+
+              {% for post.text in form %}
+                {% if field.help_text %}
+                  <small class="form-text text-muted">
+                    {{ field.help_text }}
+                  </small>
                 {% endif %}
-              </small>                  
-            </div>                    
+              {% endfor %}
+
+            </div>
             {% endfor %}                  
             <div class="d-flex justify-content-end">                                   
               <button type="submit" class="btn btn-primary">                      
