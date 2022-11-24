@@ -34,6 +34,10 @@ class PostsViewsTests(TestCase):
             text='Текст поста',
             group=cls.group,
         )
+        cls.follow = Follow.objects.create(
+            user=cls.user_anothe,
+            author=cls.user
+        )
 
     def setUp(self):
         self.client = Client()
@@ -91,6 +95,7 @@ class PostsViewsTests(TestCase):
 
     def test_post_add_correct(self):
         """Пост добавлен корректно"""
+        self.authorized_client.force_login(self.user_anothe)
         pages: tuple = (
             reverse('posts:index'),
             reverse(
@@ -99,7 +104,7 @@ class PostsViewsTests(TestCase):
             reverse(
                 'posts:profile', kwargs={'username': self.user.username}
             ),
-            # reverse('posts:follow_index'),
+            reverse('posts:follow_index'),
         )
         for page in pages:
             with self.subTest(page=page):
@@ -171,10 +176,7 @@ class PostsViewsTests(TestCase):
         кто на него подписан
         """
         self.authorized_client.force_login(self.user_anothe)
-        Follow.objects.create(
-            user=self.user_anothe,
-            author=self.user
-        )
+        self.follow
         response = self.authorized_client.get(
             reverse('posts:follow_index')
         )
@@ -186,10 +188,7 @@ class PostsViewsTests(TestCase):
         Новая запись не появляется в ленте тех,
         кто не подписан
         """
-        Follow.objects.create(
-            user=self.user_anothe,
-            author=self.user
-        )
+        self.follow
         response = self.authorized_client.get(
             reverse('posts:follow_index')
         )
