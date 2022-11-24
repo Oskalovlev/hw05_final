@@ -48,6 +48,7 @@ class PostsURLTests(TestCase):
             (reverse(
                 'posts:post_edit', kwargs={'post_id': self.post.id}
             ), f'/posts/{self.post.id}/edit/'),
+            (reverse('posts:follow_index'), '/follow/')
         ]
         for name_url, accord in accords_url:
             with self.subTest(name_url=name_url):
@@ -70,6 +71,7 @@ class PostsURLTests(TestCase):
             (reverse(
                 'posts:post_edit', kwargs={'post_id': self.post.id}
             ), 'posts/create_post.html'),
+            (reverse('posts:follow_index'), 'posts/follow.html')
         ]
         for adress, template in templates_url_names:
             with self.subTest(adress=adress):
@@ -89,10 +91,11 @@ class PostsURLTests(TestCase):
             (reverse(
                 'posts:post_detail', kwargs={'post_id': self.post.id}
             ), HTTPStatus.OK, False),
-            ((reverse('posts:post_create')), HTTPStatus.OK, True),
-            ((reverse(
+            (reverse('posts:post_create'), HTTPStatus.OK, True),
+            (reverse(
                 'posts:post_edit', kwargs={'post_id': self.post.id}
-            )), HTTPStatus.OK, True),
+            ), HTTPStatus.OK, True),
+            (reverse('posts:follow_index'), HTTPStatus.OK, True),
             (('/unexisting_page/'), HTTPStatus.NOT_FOUND, False)
         ]
         for page, status_code, autorized in pages_status:

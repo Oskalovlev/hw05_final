@@ -29,9 +29,6 @@ class PostsViewsTests(TestCase):
         )
         cls.user = User.objects.create_user(username='auth')
         cls.user_anothe = User.objects.create_user(username='auth-anothe')
-        cls.user_temporary = User.objects.create_user(
-            username='auth-temporary'
-        )
         cls.post = Post.objects.create(
             author=cls.user,
             text='Текст поста',
@@ -40,11 +37,8 @@ class PostsViewsTests(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.anothe_client = Client()
-        self.anothe_client.force_login(self.user_anothe)
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
-        # self.authorized_client.force_login(self.user_temporary)
         cache.clear()
 
     def test_profile_and_group_list_page_show_correct_context(self):
@@ -105,6 +99,7 @@ class PostsViewsTests(TestCase):
             reverse(
                 'posts:profile', kwargs={'username': self.user.username}
             ),
+            # reverse('posts:follow_index'),
         )
         for page in pages:
             with self.subTest(page=page):
@@ -139,67 +134,67 @@ class PostsViewsTests(TestCase):
 
     def test_follow(self):
         """Проверка подписки на автора пользователем"""
-        self.anothe_client.get(
-            reverse('posts:profile_follow', args=[self.user.username]),
+        self.authorized_client.get(
+            reverse('posts:profile_follow', args=[self.user_anothe.username]),
             follow=True
         )
-        count_after_follower = Follow.objects.count()
-        self.assertEqual(count_after_follower, 1)
+        self.assertTrue(
+            Follow.objects.filter(
+                user=self.user,
+                author=self.user_anothe
+            ).exists()
+        )
 
     def test_unfollow(self):
         """Проверка отписки позьзователя"""
-        self.anothe_client.get(
-            reverse('posts:profile_follow', args=[self.user.username]),
+        Follow.objects.create(
+            user=self.user,
+            author=self.user_anothe
+        )
+        self.authorized_client.get(
+            reverse(
+                'posts:profile_unfollow',
+                args=[self.user_anothe.username]
+            ),
             follow=True
         )
-        self.anothe_client.get(
-            reverse('posts:profile_unfollow', args=[self.user.username]),
-            follow=True
+        self.assertFalse(
+            Follow.objects.filter(
+                user=self.user,
+                author=self.user_anothe
+            ).exists()
         )
-        count_after_follower = Follow.objects.count()
-        self.assertEqual(count_after_follower, 0)
 
     def test_appears_feed_subscribed(self):
         """
         Новая запись пользователя появляется в ленте тех,
         кто на него подписан
         """
-        post_before = Post.objects.create(
-            text='Проверка',
-            author=self.post.author,
-        )
+        self.authorized_client.force_login(self.user_anothe)
         Follow.objects.create(
             user=self.user_anothe,
-            author=self.post.author
+            author=self.user
         )
-        response = self.anothe_client.get(
+        response = self.authorized_client.get(
             reverse('posts:follow_index')
         )
-        post_after = response.context['page_obj']
-        self.assertIn(post_before, post_after)
+        post = response.context['page_obj']
+        self.assertIn(self.post, post)
 
     def test_appears_no_feed_unsubscribed(self):
         """
         Новая запись не появляется в ленте тех,
         кто не подписан
         """
-        post_before = Post.objects.create(
-            text='Проверка',
-            author=self.post.author,
-        )
         Follow.objects.create(
             user=self.user_anothe,
-            author=self.post.author
+            author=self.user
         )
-        response = self.anothe_client.get(
-            reverse('posts:follow_index')
-        )
-        post_after = response.context['page_obj']
         response = self.authorized_client.get(
             reverse('posts:follow_index')
         )
-        post_after = response.context['page_obj']
-        self.assertNotIn(post_before, post_after)
+        post = response.context['page_obj']
+        self.assertNotIn(self.post, post)
 
 
 class TestPaginatorViews(TestCase):

@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 
-from .models import Group, Post, Comment, Follow, User
+from .models import Group, Post, Follow, User
 from .forms import PostForm, CommentForm
 
 
@@ -39,7 +39,7 @@ def profile(request, username):
     page_obj = paginations(page_number=request, page_list=author_posts)
     following = (
         request.user.is_authenticated
-        and Follow.objects.select_related('author')
+        and author.following.select_related('user')
     )
     context = {
         'author': author,
@@ -54,14 +54,12 @@ def post_detail(request, post_id):
         Post.objects.select_related('author', 'group'),
         id=post_id
     )
-    form = CommentForm()
-    comments = Comment.objects.select_related(
+    comments = post.comments.select_related(
         'author'
     )
-    # comments = comment.comments.select_related('author')
     context = {
         'post': post,
-        'form': form,
+        'form': CommentForm(),
         'comments': comments,
     }
     return render(request, 'posts/post_detail.html', context)

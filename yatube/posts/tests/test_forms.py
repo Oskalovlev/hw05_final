@@ -120,7 +120,9 @@ class TestComments(TestCase):
 
     def test_comments_authorized_user(self):
         """Комментировать может только авторизованный пользователь"""
-        comment_count_before = Comment.objects.count() + 1
+        comment_creating_before = set(
+            Comment.objects.values_list('id', flat=True)
+        )
         form_data = {
             'text': 'Текст нового поста',
         }
@@ -134,10 +136,16 @@ class TestComments(TestCase):
             data=form_data,
             follow=True,
         )
-        coment = Comment.objects.get(text=form_data['text'])
-        comment_count_after = Comment.objects.count()
+        comment_creating_after = set(
+            Comment.objects.values_list('id', flat=True)
+        )
+        comment_difference = comment_creating_after.difference(
+            comment_creating_before
+        )
         if autorized:
-            self.assertEqual(comment_count_before, comment_count_after)
-            self.assertEqual(coment.text, form_data['text'])
+            self.assertEqual(len(comment_difference), 1)
+            comment_id = comment_difference.pop()
+            comment = Comment.objects.get(id=comment_id)
+            self.assertEqual(comment.text, form_data['text'])
         if guest:
-            self.assertNotEqual(comment_count_before, comment_count_after + 1)
+            self.assertNotEqual(len(comment_difference), 1)
