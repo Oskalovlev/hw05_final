@@ -78,7 +78,7 @@ class PostsURLTests(TestCase):
                 response = self.authorized_client.get(adress)
                 self.assertTemplateUsed(response, template)
 
-    def test_urls_authorized_client(self):
+    def test_verifying_user_access(self):
         """Проверка доступа пользователя"""
         pages_status: list = [
             (reverse('posts:index'), HTTPStatus.OK, False),
@@ -106,7 +106,7 @@ class PostsURLTests(TestCase):
                     response = self.client.get(page)
                 self.assertEqual(response.status_code, status_code)
 
-    def test_urls_redirect_anonymous(self):
+    def test_redirect_anonymous(self):
         """Редирект неавторизованного пользователя"""
         url_log = reverse('users:login')
         url_create = reverse('posts:post_create')
@@ -124,7 +124,7 @@ class PostsURLTests(TestCase):
             response = self.client.get(url)
             self.assertRedirects(response, value)
 
-    def test_urls_redirect_not_author_of_edit(self):
+    def test_urls_redirect_not_author_of_post_edit(self):
         """Редирект не автора со страницы редактирования"""
         self.authorized_client.force_login(self.anothe_user)
         url_request = reverse(

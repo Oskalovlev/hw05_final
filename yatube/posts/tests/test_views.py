@@ -46,7 +46,10 @@ class PostsViewsTests(TestCase):
         cache.clear()
 
     def test_profile_and_group_list_page_show_correct_context(self):
-        """Шаблоны profile и group_list сформированы с правильным контекстом"""
+        """
+        Шаблоны профиля и списка групп
+        сформированы с правильным контекстом
+        """
         response_profile = self.authorized_client.get(
             reverse('posts:profile', kwargs={'username': self.user})
         )
@@ -61,7 +64,10 @@ class PostsViewsTests(TestCase):
             self.assertEqual(page_context, check)
 
     def test_post_detail_page_show_correct_context(self):
-        """Шаблон post_detail сформирован с правильным контекстом"""
+        """
+        Шаблон подробной информации поста
+        сформирован с правильным контекстом
+        """
         response = self.authorized_client.get(
             reverse('posts:post_detail', kwargs={'post_id': self.post.id}))
         post: list = [
@@ -73,7 +79,10 @@ class PostsViewsTests(TestCase):
             self.assertEqual(value, expected)
 
     def test_post_create_and_post_edit_page_show_correct_form(self):
-        """Шаблон post_create и post_edit сформирован с правильной формой"""
+        """
+        Шаблон создания и редактирования поста
+        сформирован с правильной формой
+        """
         pages: tuple = (
             reverse('posts:post_create'),
             reverse('posts:post_edit', kwargs={'post_id': self.post.id, })
@@ -86,7 +95,7 @@ class PostsViewsTests(TestCase):
                 )
 
     def test_post_edit_page_show_correct_post(self):
-        """Для страницы post_edit в форму передан нужный пост """
+        """Для страницы редактирования поста в форму передан нужный пост """
         page = reverse('posts:post_edit', kwargs={'post_id': self.post.id})
         response = self.authorized_client.get(page)
         self.assertEqual(
@@ -112,7 +121,7 @@ class PostsViewsTests(TestCase):
                 context_page = response.context['page_obj']
                 self.assertIn(self.post, context_page, 'поста нет')
 
-    def test_post_not_in_another_group(self):
+    def test_post_not_displayed_in_another_group(self):
         """Пост не отобраежается в другой группе"""
         page = reverse(
             'posts:group_list', kwargs={'slug': self.anothe_group.slug}
@@ -121,7 +130,7 @@ class PostsViewsTests(TestCase):
         context_page = response.context['page_obj']
         self.assertNotIn(self.post, context_page, 'пост есть')
 
-    def test_cache_index(self):
+    def test_cache_to_index(self):
         """Проверка кэша для индекса"""
         response = self.authorized_client.get(reverse('posts:index'))
         before_posts = response.content
@@ -137,7 +146,7 @@ class PostsViewsTests(TestCase):
         next_post = response_new.content
         self.assertNotEqual(another_post, next_post)
 
-    def test_follow(self):
+    def test_subscribe_to_author(self):
         """Проверка подписки на автора пользователем"""
         self.authorized_client.get(
             reverse('posts:profile_follow', args=[self.user_anothe.username]),
@@ -150,7 +159,7 @@ class PostsViewsTests(TestCase):
             ).exists()
         )
 
-    def test_unfollow(self):
+    def test_unsubscribe_to_author(self):
         """Проверка отписки позьзователя"""
         Follow.objects.create(
             user=self.user,
@@ -170,20 +179,7 @@ class PostsViewsTests(TestCase):
             ).exists()
         )
 
-    def test_appears_feed_subscribed(self):
-        """
-        Новая запись пользователя появляется в ленте тех,
-        кто на него подписан
-        """
-        self.authorized_client.force_login(self.user_anothe)
-        self.follow
-        response = self.authorized_client.get(
-            reverse('posts:follow_index')
-        )
-        post = response.context['page_obj']
-        self.assertIn(self.post, post)
-
-    def test_appears_no_feed_unsubscribed(self):
+    def test_entry_not_feed_unsubscriber(self):
         """
         Новая запись не появляется в ленте тех,
         кто не подписан

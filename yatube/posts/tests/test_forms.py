@@ -118,20 +118,15 @@ class TestComments(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-    def test_comments_authorized_user(self):
+    def test_only_authorized_user_can_comment(self):
         """Комментировать может только авторизованный пользователь"""
         comment_creating_before = set(
             Comment.objects.values_list('id', flat=True)
         )
         form_data = {
-            'text': 'Текст нового поста',
+            'text': 'Комментарий',
         }
-        autorized = self.authorized_client.post(
-            reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
-            data=form_data,
-            follow=True,
-        )
-        guest = self.client.post(
+        self.authorized_client.post(
             reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
             data=form_data,
             follow=True,
@@ -142,10 +137,28 @@ class TestComments(TestCase):
         comment_difference = comment_creating_after.difference(
             comment_creating_before
         )
-        if autorized:
-            self.assertEqual(len(comment_difference), 1)
-            comment_id = comment_difference.pop()
-            comment = Comment.objects.get(id=comment_id)
-            self.assertEqual(comment.text, form_data['text'])
-        if guest:
-            self.assertNotEqual(len(comment_difference), 1)
+        self.assertEqual(len(comment_difference), 1)
+        comment_id = comment_difference.pop()
+        comment = Comment.objects.get(id=comment_id)
+        self.assertEqual(comment.text, form_data['text'])
+
+    def test_unauthorized_user_cannot_comment(self):
+        """Не авторизованный пользователь не может комментировать"""
+        comment_creating_before = set(
+            Comment.objects.values_list('id', flat=True)
+        )
+        form_data = {
+            'text': 'Комментарий',
+        }
+        self.client.post(
+            reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
+            data=form_data,
+            follow=True,
+        )
+        comment_creating_after = set(
+            Comment.objects.values_list('id', flat=True)
+        )
+        comment_difference = comment_creating_after.difference(
+            comment_creating_before
+        )
+        self.assertNotEqual(len(comment_difference), 1)
