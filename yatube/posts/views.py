@@ -39,8 +39,8 @@ def profile(request, username):
     page_obj = paginations(page_number=request, page_list=author_posts)
     following = (
         request.user.is_authenticated
-        and author.following.select_related('user').filter(
-            user=request.user, author=author
+        and author.following.filter(
+            user=request.user
         )
     )
     context = {

@@ -3,8 +3,8 @@
   <ul>            
     <li>
       {% if request.resolver_match.view_name != 'posts:profile'%}
-      <a href="{% url 'posts:profile' username=post.author %}"
-      style="color:red">
+      <a href="{% url 'posts:profile' username=post.author %}" 
+      style="color:red"> 
       {% endif %}
       {{ post.author.get_full_name }}
       </a>

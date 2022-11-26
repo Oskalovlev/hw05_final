@@ -140,6 +140,7 @@ class TestComments(TestCase):
         self.assertEqual(len(comment_difference), 1)
         comment_id = comment_difference.pop()
         comment = Comment.objects.get(id=comment_id)
+        self.assertEqual(comment.post, self.post)
         self.assertEqual(comment.text, form_data['text'])
 
     def test_unauthorized_user_cannot_comment(self):
@@ -161,4 +162,5 @@ class TestComments(TestCase):
         comment_difference = comment_creating_after.difference(
             comment_creating_before
         )
-        self.assertNotEqual(len(comment_difference), 1)
+        self.assertEqual(len(comment_difference), 0)
+        self.assertNotEqual(self.post.text, form_data['text'])
